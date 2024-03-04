@@ -21,9 +21,9 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        Log.LogInfo($"Applying patches...");
+        Log.LogInfo("Applying Patches...");
         ApplyPluginPatch();
-        Log.LogInfo($"Patches applied");
+        Log.LogMessage($"Loaded {PluginInfo.PLUGIN_NAME} version {PluginInfo.PLUGIN_VERSION} successfully.");
     }
 
     /// Applies the patch to the game.
