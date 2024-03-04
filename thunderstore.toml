@@ -6,9 +6,9 @@ repository = "https://thunderstore.io"
 
 [package]
 namespace = "ravingdead"
-name = "Template"
+name = "FriendlyCompany"
 description = "A template for Lethal Company plugins."
-websiteUrl = "https://github.com/RavingDead/LC_RavingDeadTemplate"
+websiteUrl = "https://github.com/RavingDead/LC_FriendlyCompany"
 containsNsfwContent = false
 
 [package.dependencies]
@@ -21,8 +21,8 @@ readme = "README.md"
 outdir = "build"
 
 [[build.copy]]
-source = "Template/bin/Template.dll"
-target = "BepInEx/plugins/Template.dll"
+source = "FriendlyCompany/bin/FriendlyCompany.dll"
+target = "BepInEx/plugins/FriendlyCompany.dll"
 
 [[build.copy]]
 source = "CHANGELOG.md"
@@ -37,4 +37,4 @@ communities = ["lethal-company"]
 
 [publish.categories]
 # The categories are available at https://thunderstore.io near of the search bar
-lethal-company = ["bepinex", "mods"]
+lethal-company = ["bepinex", "mods", "monsters"]
