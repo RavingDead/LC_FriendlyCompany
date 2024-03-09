@@ -4,7 +4,7 @@
 
 A mod aimed at making some enemies friendlier!
 
-![](./docs/gifs/FriendlyBees_Demo.gif)
+![FriendlyBees_Demo](https://github.com/RavingDead/LC_FriendlyCompany/assets/154840527/21e57bee-f068-490f-a397-c200aa59c856)
 
 This mod makes some of the monsters more forgiving without completely removing their mechanics.
 
