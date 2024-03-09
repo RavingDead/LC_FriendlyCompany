@@ -3,7 +3,7 @@ using UnityEngine;
 using GameNetcodeStuff;
 using System.Collections.Generic;
 
-namespace ravingdead.patch;
+namespace ravingdead.FriendlyCompany.patch;
 
 public class FriendlyBees : MonoBehaviour
 {
@@ -11,8 +11,7 @@ public class FriendlyBees : MonoBehaviour
 
     public List<PlayerControllerB> MeanPlayers;
 
-    /* QoL Methods */
-
+    #region UtilityMethods
     // __instance.hive.playerHeldBy
     public PlayerControllerB GetPlayerHeldBy() { return __instance.hive.playerHeldBy; }
 
@@ -40,10 +39,7 @@ public class FriendlyBees : MonoBehaviour
             }
         }
     }
-
-    // Sets bees state to Idle (0)
-
-    /* Setup */
+    #endregion
 
     // Class initializer. Sets up required variables.
     public void Initialize(RedLocustBees instance)
@@ -56,41 +52,35 @@ public class FriendlyBees : MonoBehaviour
     // Add mean players not in array. Returns true if a new player was added to list.
     public void AddMeanPlayer()
     {
-        if (GetIsHeld() && !GetIsHeldByEnemy())
+        if (!IsPlayerMean(GetPlayerHeldBy()))
         {
-            if (!IsPlayerMean(GetPlayerHeldBy()))
-            {
-                Plugin.Log.LogFatal($"Player {GetPlayerHeldBy().playerUsername} is now logged as a mean person >:O");
-                MeanPlayers.Add(GetPlayerHeldBy());
-            }
-            else
-            {
-                Plugin.Log.LogFatal($"Player {GetPlayerHeldBy().playerUsername} was already a mean person >:(");
-            }
+            Plugin.Log.LogFatal($"Player {GetPlayerHeldBy().playerUsername} is now logged as a mean person >:O");
+            MeanPlayers.Add(GetPlayerHeldBy());
+        }
+        else
+        {
+            Plugin.Log.LogFatal($"Player {GetPlayerHeldBy().playerUsername} was already a mean person >:(");
         }
     }
 
     // Corrects behavior if targeted player was friendly.
-    public void JudgeTargetPlayer()
+    public void TargetMeanPlayer()
     {
-        if (__instance.targetPlayer != null && !IsPlayerMean(__instance.targetPlayer))
+        Plugin.Log.LogInfo($"Target {__instance.targetPlayer.playerUsername} is friendly, switching behavior...");
+        PlayerControllerB victim = FindNearestMeanPlayer(no_default: true);
+        if (victim == null)
         {
-            Plugin.Log.LogFatal($"Target {__instance.targetPlayer.playerUsername} is friendly, switching behavior...");
-            PlayerControllerB victim = FindNearestMeanPlayer(no_default: true);
-            if (victim == null)
-            {
-                __instance.wasInChase = false;
+            __instance.wasInChase = false;
 
-                if (__instance.IsHiveMissing())
-                {
-                    __instance.SwitchToBehaviourState(1);
-                    __instance.StartSearch(base.transform.position, __instance.searchForHive);
-                }
-                else 
-                {
-                    __instance.SwitchToBehaviourState(0);
-                    __instance.targetPlayer = victim; // Stop targetting friendlies!
-                }
+            if (__instance.IsHiveMissing())
+            {
+                __instance.SwitchToBehaviourState(1);
+                __instance.StartSearch(base.transform.position, __instance.searchForHive);
+            }
+            else 
+            {
+                __instance.SwitchToBehaviourState(0);
+                __instance.targetPlayer = victim; // Stop targetting friendlies!
             }
         }
     }
@@ -190,9 +180,11 @@ public class RedLocustBeesPatch
     [HarmonyPrefix]
     static void DoAIInterval_Pre(ref RedLocustBees __instance)
     {
-        friendlyBees.PrintMeanies();
-        friendlyBees.AddMeanPlayer();
-        friendlyBees.JudgeTargetPlayer();
+        // friendlyBees.PrintMeanies();
+        if (friendlyBees.GetIsHeld() && !friendlyBees.GetIsHeldByEnemy())
+            friendlyBees.AddMeanPlayer();
+        if (__instance.targetPlayer != null && !friendlyBees.IsPlayerMean(__instance.targetPlayer))
+            friendlyBees.TargetMeanPlayer();
         return;
     }
 
@@ -268,7 +260,6 @@ public class RedLocustBeesPatch
         if (__instance.timeSinceHittingPlayer >= 0.4f)
         {
             PlayerControllerB targetPlayer = __instance.MeetsStandardPlayerCollisionConditions(other, false, false);
-            Plugin.Log.LogFatal($"condition: {targetPlayer != null && friendlyBees.IsPlayerMean(targetPlayer)} | validTarget: {targetPlayer != null} | meanTarget: {friendlyBees.IsPlayerMean(targetPlayer)}");
             if (targetPlayer != null && friendlyBees.IsPlayerMean(targetPlayer))
             {
                 friendlyBees.PrintMeanies();

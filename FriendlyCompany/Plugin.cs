@@ -1,18 +1,26 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using ravingdead.patch;
+using ravingdead.FriendlyCompany.patch;
+using ravingdead.FriendlyCompany;
+using System;
 
-namespace ravingdead;
+namespace ravingdead.FriendlyCompany;
 
-[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+[BepInPlugin(GUID, PLUGIN_NAME, VERSION)]
+[BepInDependency("com.sigurd.csync", BepInDependency.DependencyFlags.HardDependency)]
 public class Plugin : BaseUnityPlugin
 {
+    internal const string GUID = "ravingdead.FriendlyCompany", PLUGIN_NAME = "FriendlyCompany", VERSION = "1.1.0";
+
     public static Plugin Instance { get; set; }
+
+    public static ModConfig ConfigInstance { get; internal set; }
 
     public static ManualLogSource Log => Instance.Logger;
 
-    private readonly Harmony _harmony = new(PluginInfo.PLUGIN_GUID);
+    private readonly Harmony _harmony = new(GUID);
 
     public Plugin()
     {
@@ -21,14 +29,29 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        Log.LogInfo("Applying Patches...");
-        ApplyPluginPatch();
-        Log.LogMessage($"Loaded {PluginInfo.PLUGIN_NAME} version {PluginInfo.PLUGIN_VERSION} successfully.");
+        try
+        {
+            Log.LogInfo("Loading mod...");
+
+            Log.LogInfo("Loading config...");
+            ConfigInstance = new(Config);
+
+            Log.LogInfo("Applying Patches...");
+            ApplyPluginPatch();
+
+            Log.LogMessage($"Loaded {PLUGIN_NAME} version {VERSION} successfully.");
+        }
+        catch (Exception e)
+        {
+            Log.LogError($"Unexpected error occured when initializing: {e.Message}\nSource: {e.Source}");
+        }
     }
 
-    /// Applies the patch to the game.
+    /* Patches */
+    // Applies the patch to the game.
     private void ApplyPluginPatch()
     {
-        _harmony.PatchAll(typeof(RedLocustBeesPatch));
+        if(ConfigInstance.ConfigEnableBees.Value)
+            _harmony.PatchAll(typeof(RedLocustBeesPatch));
     }
 }
