@@ -7,7 +7,7 @@ repository = "https://thunderstore.io"
 [package]
 namespace = "ravingdead"
 name = "FriendlyCompany"
-description = "A template for Lethal Company plugins."
+description = "A mod aimed at making some enemies friendlier!"
 websiteUrl = "https://github.com/RavingDead/LC_FriendlyCompany"
 containsNsfwContent = false
 
